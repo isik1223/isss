@@ -1,68 +1,89 @@
-<!doctype html>
-<html lang="ru" data-theme="light">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="robots" content="noindex, nofollow">
-  <title>Isi — Вход</title>
-  <link rel="stylesheet" href="https://isikai.asia/static/site.css?v=1791642307">
-</head>
-<body>
-  
 
-  <div class="topbar">
-    <div class="topbar-in">
-      <a class="brand" href="https://isikai.asia/"><span class="dot"></span>Isi</a>
-      <div style="display:flex;align-items:center;gap:9px">
-        
-          
-        
-      </div>
-    </div>
-  </div>
-
-  
-
-  <div class="container">
-    
-    
-    
-<h1>Вход</h1>
-<div class="card center">
-  <a class="btn" href="https://isikai.asia/tg-login">✈️ Войти через Telegram</a>
-  <p class="muted" style="margin-top:8px">Без пароля: аккаунт создаётся сам и сразу связан с ботом — покупки считаются вместе.</p>
-</div>
-<div class="card">
-  <form method="post" action="app.html">
-    <label>Логин</label>
-    <input type="text" name="username" required autocomplete="username" autofocus>
-    <label>Пароль</label>
-    <input type="password" name="password" required autocomplete="current-password">
-    <button class="btn" type="submit">Войти</button>
-  </form>
-</div>
-<p class="muted center">Нет аккаунта? <a href="https://isikai.asia/register">Зарегистрироваться</a></p>
-
-  </div>
-  <script>
-    /* iPhone с бровью: env(safe-area) в Safari часто даёт 0 — меряем сами.
-       Отступ ставится, когда тулбары Safari свёрнуты и страница тянется под вырез. */
-    (function () {
-      var notch = /iPhone/.test(navigator.userAgent) && Math.max(screen.height, screen.width) >= 812;
-      if (!notch) return;
-      function fix() {
-        var portrait = window.innerHeight > window.innerWidth;
-        var covered = window.innerHeight >= (screen.height - 80);
-        var pad = (portrait && covered) ? "50px" : "";
-        document.querySelectorAll(".ca-top, .topbar").forEach(function (el) {
-          el.style.paddingTop = pad;
-        });
-      }
-      window.addEventListener("resize", fix);
-      window.addEventListener("orientationchange", fix);
-      document.addEventListener("DOMContentLoaded", fix);
-      fix();
-    })();
-  </script>
-</body>
-</html>
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Вход в систему</title>
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                height: 100vh;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background: url("https://demo-source.imgix.net/mountains.jpg") no-repeat center center fixed;
+                background-size: cover;
+                font-family: Arial, sans-serif;
+            }
+            .login-container {
+                background: rgba(255, 255, 255, 0.9);
+                padding: 40px;
+                border-radius: 15px;
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+                width: 100%;
+                max-width: 400px;
+            }
+            .login-container h1 {
+                text-align: center;
+                color: #333;
+                margin-bottom: 30px;
+            }
+            .form-group {
+                margin-bottom: 20px;
+            }
+            .form-group label {
+                display: block;
+                margin-bottom: 5px;
+                color: #555;
+            }
+            .form-group input {
+                width: 100%;
+                padding: 10px;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                font-size: 16px;
+            }
+            .form-group input:focus {
+                outline: none;
+                border-color: #007bff;
+                box-shadow: 0 0 5px rgba(0,123,255,0.3);
+            }
+            button {
+                width: 100%;
+                padding: 12px;
+                background: #007bff;
+                border: none;
+                border-radius: 5px;
+                color: white;
+                font-size: 16px;
+                cursor: pointer;
+                transition: background 0.3s;
+            }
+            button:hover {
+                background: #0056b3;
+            }
+            .error {
+                color: #dc3545;
+                text-align: center;
+                margin-top: 15px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="login-container">
+            <h1>Вход в систему</h1>
+            <form method="POST">
+                <input type="hidden" name="action" value="login">
+                <div class="form-group">
+                    <label>Логин</label>
+                    <input type="text" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="password" name="password" required>
+                </div>
+                <button type="submit">Войти</button>
+            </form>
+        </div>
+    </body>
+    </html>
