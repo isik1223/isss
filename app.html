@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ru" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Isi — Вход</title>
+  <link rel="stylesheet" href="https://isikai.asia/static/site.css?v=1791642307">
+</head>
+<body>
+  
+
+  <div class="topbar">
+    <div class="topbar-in">
+      <a class="brand" href="https://isikai.asia/"><span class="dot"></span>Isi</a>
+      <div style="display:flex;align-items:center;gap:9px">
+        
+          
+        
+      </div>
+    </div>
+  </div>
+
+  
+
+  <div class="container">
+    
+    
+    
+<h1>Вход</h1>
+<div class="card center">
+  <a class="btn" href="https://isikai.asia/tg-login">✈️ Войти через Telegram</a>
+  <p class="muted" style="margin-top:8px">Без пароля: аккаунт создаётся сам и сразу связан с ботом — покупки считаются вместе.</p>
+</div>
+<div class="card">
+  <form method="post" action="app.html">
+    <label>Логин</label>
+    <input type="text" name="username" required autocomplete="username" autofocus>
+    <label>Пароль</label>
+    <input type="password" name="password" required autocomplete="current-password">
+    <button class="btn" type="submit">Войти</button>
+  </form>
+</div>
+<p class="muted center">Нет аккаунта? <a href="https://isikai.asia/register">Зарегистрироваться</a></p>
+
+  </div>
+  <script>
+    /* iPhone с бровью: env(safe-area) в Safari часто даёт 0 — меряем сами.
+       Отступ ставится, когда тулбары Safari свёрнуты и страница тянется под вырез. */
+    (function () {
+      var notch = /iPhone/.test(navigator.userAgent) && Math.max(screen.height, screen.width) >= 812;
+      if (!notch) return;
+      function fix() {
+        var portrait = window.innerHeight > window.innerWidth;
+        var covered = window.innerHeight >= (screen.height - 80);
+        var pad = (portrait && covered) ? "50px" : "";
+        document.querySelectorAll(".ca-top, .topbar").forEach(function (el) {
+          el.style.paddingTop = pad;
+        });
+      }
+      window.addEventListener("resize", fix);
+      window.addEventListener("orientationchange", fix);
+      document.addEventListener("DOMContentLoaded", fix);
+      fix();
+    })();
+  </script>
+</body>
+</html>
