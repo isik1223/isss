@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<title>ISIKAI — Путь Самурая</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Noto+Serif+JP:wght@400;500;700;900&family=Cormorant+SC:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css@v=5.css">
+<link rel="icon" type="image/png" href="assets/logo.png">
+</head>
+<body>
+
+<div class="bg-layer"></div>
+<div class="bg-vignette"></div>
+<div class="bg-grain"></div>
+<div class="mist"></div>
+<div class="light-shaft"></div>
+<div class="petals" id="petals"></div>
+<div class="cursor-blade" id="cursor"></div>
+
+<div class="kanji-bg">侍</div>
+
+<header>
+  <div class="brand">
+    <div class="brand-logo" aria-hidden="true"></div>
+    <div>
+            <div class="brand-name">ISI<span class="accent">KAI</span></div>
+      <div class="brand-sub">異世界 · ПУТЬ КЛИНКА</div>
+    </div>
+  </div>
+
+</header>
+
+<section class="hero" id="home">
+  <div class="hero-logo-wrap">
+    <img src="assets/logo.png" alt="ISIKAI" class="hero-logo" />
+  </div>
+  <h1 class="hero-title">Путь <span class="sep">❖</span> Самурая</h1>
+  <p class="hero-tagline">
+    Добро пожаловать в ISIKAI — территорию воинского духа.
+  </p>
+  <div class="jp-motto">武士道 · 名誉 · 忠義</div>
+
+  <div class="divider-ornament">
+    <span></span><div class="diamond"></div><span></span>
+  </div>
+
+  <div class="sword-menu" id="menu">
+                  <a class="sword-btn" href="https://t.me/m/5eT5H_pPZmNh">
+          <div class="katana top"></div>
+          <div class="katana bottom"></div>
+          <div class="blade-line"></div>
+          <span class="btn-label">Оператор</span>
+          <span class="btn-jp">序</span>
+        </a>
+              <a class="sword-btn" href="https://t.me/m/wdNrxGrTNjAy">
+          <div class="katana top"></div>
+          <div class="katana bottom"></div>
+          <div class="blade-line"></div>
+          <span class="btn-label">Оператор 2</span>
+          <span class="btn-jp"></span>
+        </a>
+              <a class="sword-btn" href="https://t.me/m/FJT1F2RNMjMx">
+          <div class="katana top"></div>
+          <div class="katana bottom"></div>
+          <div class="blade-line"></div>
+          <span class="btn-label">Работа</span>
+          <span class="btn-jp"></span>
+        </a>
+              <a class="sword-btn" href="https://t.me/m/Bo6xJN3KZDM6">
+          <div class="katana top"></div>
+          <div class="katana bottom"></div>
+          <div class="blade-line"></div>
+          <span class="btn-label">Саппорт Астана</span>
+          <span class="btn-jp"></span>
+        </a>
+              <a class="sword-btn" href="https://t.me/m/cL344l_EZGU5">
+          <div class="katana top"></div>
+          <div class="katana bottom"></div>
+          <div class="blade-line"></div>
+          <span class="btn-label">Саппорт Алматы</span>
+          <span class="btn-jp"></span>
+        </a>
+              <a class="sword-btn" href="https://t.me/isikaiiinfo_bot">
+          <div class="katana top"></div>
+          <div class="katana bottom"></div>
+          <div class="blade-line"></div>
+          <span class="btn-label">Инфо-бот</span>
+          <span class="btn-jp"></span>
+        </a>
+              <a class="sword-btn" href="https://t.me/isavt_bot">
+          <div class="katana top"></div>
+          <div class="katana bottom"></div>
+          <div class="blade-line"></div>
+          <span class="btn-label">БОТ авто-продаж АСТАНА</span>
+          <span class="btn-jp"></span>
+        </a>
+              <a class="sword-btn" href="https://t.me/ata_avt_bot">
+          <div class="katana top"></div>
+          <div class="katana bottom"></div>
+          <div class="blade-line"></div>
+          <span class="btn-label">БОТ авто-продаж АЛМАТЫ</span>
+          <span class="btn-jp"></span>
+        </a>
+            </div>
+</section>
+
+<footer>
+  <span class="jp">義 · 勇 · 仁 · 礼 · 誠 · 名誉 · 忠義</span>
+  <div class="copy">ISIKAI <span class="dot"></span> © 2026 <span class="dot"></span> ВСЕ ПРАВА СВЯЩЕННЫ</div>
+</footer>
+
+<script>
+  const petalsRoot = document.getElementById('petals');
+  const PETAL_COUNT = 32;
+  for(let i=0;i<PETAL_COUNT;i++){
+    const p = document.createElement('div');
+    p.className = 'petal';
+    p.style.left = Math.random()*100 + 'vw';
+    const dur = 10 + Math.random()*12;
+    p.style.animationDuration = dur + 's';
+    p.style.animationDelay = (-Math.random()*dur) + 's';
+    const size = 7 + Math.random()*10;
+    p.style.width = size+'px';
+    p.style.height = (size*1.15)+'px';
+    p.style.setProperty('--drift', (Math.random()*240 - 120) + 'px');
+    p.style.opacity = 0.35 + Math.random()*0.5;
+    petalsRoot.appendChild(p);
+  }
+
+  const cursor = document.getElementById('cursor');
+  let cx=0, cy=0, tx=0, ty=0;
+  window.addEventListener('mousemove', e => { tx = e.clientX; ty = e.clientY; });
+  (function loop(){
+    cx += (tx - cx) * 0.18;
+    cy += (ty - cy) * 0.18;
+    cursor.style.transform = `translate(${cx}px, ${cy}px) translate(-50%,-50%)`;
+    requestAnimationFrame(loop);
+  })();
+  document.querySelectorAll('.sword-btn, a, .brand-logo').forEach(el=>{
+    el.addEventListener('mouseenter', ()=> cursor.classList.add('active'));
+    el.addEventListener('mouseleave', ()=> cursor.classList.remove('active'));
+  });
+
+  document.querySelectorAll('.sword-btn').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      const flash = document.createElement('div');
+      flash.style.cssText = `
+        position:absolute; inset:0;
+        background: linear-gradient(90deg, transparent, rgba(255,60,80,0.85), transparent);
+        pointer-events:none;
+        animation: slashFlash .6s ease-out forwards;
+        z-index: 5;
+      `;
+      btn.appendChild(flash);
+      setTimeout(()=> flash.remove(), 700);
+    });
+  });
+  const slashStyle = document.createElement('style');
+  slashStyle.textContent = `
+    @keyframes slashFlash{
+      0%   { transform: translateX(-100%); opacity:0; }
+      50%  { opacity:1; }
+      100% { transform: translateX(100%);  opacity:0; }
+    }
+  `;
+  document.head.appendChild(slashStyle);
+</script>
+
+</body>
+</html>
