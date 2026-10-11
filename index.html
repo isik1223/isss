@@ -1,176 +1,867 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-<meta http-equiv="Pragma" content="no-cache" />
-<meta http-equiv="Expires" content="0" />
-<title>ISIKAI — Путь Самурая</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Noto+Serif+JP:wght@400;500;700;900&family=Cormorant+SC:wght@500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css@v=5.css">
-<link rel="icon" type="image/png" href="assets/logo.png">
-</head>
-<body>
+/* Чат-приложение сайта: сценарий 1-в-1 как у телеграм-бота.
+   Тексты приходят из /api/boot (сгенерированы из файлов бота). */
+(function () {
+  "use strict";
 
-<div class="bg-layer"></div>
-<div class="bg-vignette"></div>
-<div class="bg-grain"></div>
-<div class="mist"></div>
-<div class="light-shaft"></div>
-<div class="petals" id="petals"></div>
-<div class="cursor-blade" id="cursor"></div>
+  var S = {
+    texts: {}, lang: "ru", theme: "light", cid: null,
+    currencies: [], lastMsgId: 0, activeOrder: null, ws: null,
+    ctx: { city: null, cityName: "", district: null, districtName: "" },
+  };
 
-<div class="kanji-bg">侍</div>
+  var feed = document.getElementById("feed");
+  var feedScroll = document.getElementById("feedScroll");
+  var input = document.getElementById("msgInput");
 
-<header>
-  <div class="brand">
-    <div class="brand-logo" aria-hidden="true"></div>
-    <div>
-            <div class="brand-name">ISI<span class="accent">KAI</span></div>
-      <div class="brand-sub">異世界 · ПУТЬ КЛИНКА</div>
-    </div>
-  </div>
-
-</header>
-
-<section class="hero" id="home">
-  <div class="hero-logo-wrap">
-    <img src="assets/logo.png" alt="ISIKAI" class="hero-logo" />
-  </div>
-  <h1 class="hero-title">Путь <span class="sep">❖</span> Самурая</h1>
-  <p class="hero-tagline">
-    Добро пожаловать в ISIKAI — территорию воинского духа.
-  </p>
-  <div class="jp-motto">武士道 · 名誉 · 忠義</div>
-
-  <div class="divider-ornament">
-    <span></span><div class="diamond"></div><span></span>
-  </div>
-
-  <div class="sword-menu" id="menu">
-                  <a class="sword-btn" href="https://t.me/m/5eT5H_pPZmNh">
-          <div class="katana top"></div>
-          <div class="katana bottom"></div>
-          <div class="blade-line"></div>
-          <span class="btn-label">Оператор</span>
-          <span class="btn-jp">序</span>
-        </a>
-              <a class="sword-btn" href="https://t.me/m/wdNrxGrTNjAy">
-          <div class="katana top"></div>
-          <div class="katana bottom"></div>
-          <div class="blade-line"></div>
-          <span class="btn-label">Оператор 2</span>
-          <span class="btn-jp"></span>
-        </a>
-              <a class="sword-btn" href="https://t.me/m/FJT1F2RNMjMx">
-          <div class="katana top"></div>
-          <div class="katana bottom"></div>
-          <div class="blade-line"></div>
-          <span class="btn-label">Работа</span>
-          <span class="btn-jp"></span>
-        </a>
-              <a class="sword-btn" href="https://t.me/m/Bo6xJN3KZDM6">
-          <div class="katana top"></div>
-          <div class="katana bottom"></div>
-          <div class="blade-line"></div>
-          <span class="btn-label">Саппорт Астана</span>
-          <span class="btn-jp"></span>
-        </a>
-              <a class="sword-btn" href="https://t.me/m/cL344l_EZGU5">
-          <div class="katana top"></div>
-          <div class="katana bottom"></div>
-          <div class="blade-line"></div>
-          <span class="btn-label">Саппорт Алматы</span>
-          <span class="btn-jp"></span>
-        </a>
-              <a class="sword-btn" href="https://t.me/isikaiiinfo_bot">
-          <div class="katana top"></div>
-          <div class="katana bottom"></div>
-          <div class="blade-line"></div>
-          <span class="btn-label">Инфо-бот</span>
-          <span class="btn-jp"></span>
-        </a>
-              <a class="sword-btn" href="https://t.me/isavt_bot">
-          <div class="katana top"></div>
-          <div class="katana bottom"></div>
-          <div class="blade-line"></div>
-          <span class="btn-label">БОТ авто-продаж АСТАНА</span>
-          <span class="btn-jp"></span>
-        </a>
-              <a class="sword-btn" href="https://t.me/ata_avt_bot">
-          <div class="katana top"></div>
-          <div class="katana bottom"></div>
-          <div class="blade-line"></div>
-          <span class="btn-label">БОТ авто-продаж АЛМАТЫ</span>
-          <span class="btn-jp"></span>
-        </a>
-            </div>
-</section>
-
-<footer>
-  <span class="jp">義 · 勇 · 仁 · 礼 · 誠 · 名誉 · 忠義</span>
-  <div class="copy">ISIKAI <span class="dot"></span> © 2026 <span class="dot"></span> ВСЕ ПРАВА СВЯЩЕННЫ</div>
-</footer>
-
-<script>
-  const petalsRoot = document.getElementById('petals');
-  const PETAL_COUNT = 32;
-  for(let i=0;i<PETAL_COUNT;i++){
-    const p = document.createElement('div');
-    p.className = 'petal';
-    p.style.left = Math.random()*100 + 'vw';
-    const dur = 10 + Math.random()*12;
-    p.style.animationDuration = dur + 's';
-    p.style.animationDelay = (-Math.random()*dur) + 's';
-    const size = 7 + Math.random()*10;
-    p.style.width = size+'px';
-    p.style.height = (size*1.15)+'px';
-    p.style.setProperty('--drift', (Math.random()*240 - 120) + 'px');
-    p.style.opacity = 0.35 + Math.random()*0.5;
-    petalsRoot.appendChild(p);
+  function t(key, vars) {
+    var s = S.texts[key] || key;
+    if (vars) Object.keys(vars).forEach(function (k) {
+      s = s.split("{" + k + "}").join(vars[k]);
+    });
+    return s;
+  }
+  function esc(s) {
+    var d = document.createElement("div");
+    d.textContent = s == null ? "" : String(s);
+    return d.innerHTML;
+  }
+  // Телеграм-HTML из текстов бота: разрешаем b/i/code/u/s, остальное экранируем.
+  function tgHtml(s) {
+    var e = esc(s);
+    ["b", "i", "code", "u", "s"].forEach(function (tag) {
+      e = e.split("&lt;" + tag + "&gt;").join("<" + tag + ">")
+           .split("&lt;/" + tag + "&gt;").join("</" + tag + ">");
+    });
+    return e;
+  }
+  function scrollDown() {
+    // Плавный скролл вниз (как в тг); повтор после отрисовки картинок.
+    var go = function () { feedScroll.scrollTo({ top: feedScroll.scrollHeight, behavior: "smooth" }); };
+    go();
+    setTimeout(go, 80);
+    setTimeout(go, 250);
   }
 
-  const cursor = document.getElementById('cursor');
-  let cx=0, cy=0, tx=0, ty=0;
-  window.addEventListener('mousemove', e => { tx = e.clientX; ty = e.clientY; });
-  (function loop(){
-    cx += (tx - cx) * 0.18;
-    cy += (ty - cy) * 0.18;
-    cursor.style.transform = `translate(${cx}px, ${cy}px) translate(-50%,-50%)`;
-    requestAnimationFrame(loop);
-  })();
-  document.querySelectorAll('.sword-btn, a, .brand-logo').forEach(el=>{
-    el.addEventListener('mouseenter', ()=> cursor.classList.add('active'));
-    el.addEventListener('mouseleave', ()=> cursor.classList.remove('active'));
-  });
-
-  document.querySelectorAll('.sword-btn').forEach(btn=>{
-    btn.addEventListener('click', (e)=>{
-      const flash = document.createElement('div');
-      flash.style.cssText = `
-        position:absolute; inset:0;
-        background: linear-gradient(90deg, transparent, rgba(255,60,80,0.85), transparent);
-        pointer-events:none;
-        animation: slashFlash .6s ease-out forwards;
-        z-index: 5;
-      `;
-      btn.appendChild(flash);
-      setTimeout(()=> flash.remove(), 700);
-    });
-  });
-  const slashStyle = document.createElement('style');
-  slashStyle.textContent = `
-    @keyframes slashFlash{
-      0%   { transform: translateX(-100%); opacity:0; }
-      50%  { opacity:1; }
-      100% { transform: translateX(100%);  opacity:0; }
+  function addMsg(html, who, meta) {
+    var wrap = document.createElement("div");
+    wrap.className = "bmsg " + (who === "me" ? "me" : "bot");
+    var b = document.createElement("div");
+    b.className = "bubble";
+    b.innerHTML = html;
+    wrap.appendChild(b);
+    if (meta) {
+      var m = document.createElement("div");
+      m.className = "meta";
+      m.textContent = meta;
+      wrap.appendChild(m);
     }
-  `;
-  document.head.appendChild(slashStyle);
-</script>
+    feed.appendChild(wrap);
+    scrollDown();
+    return wrap;
+  }
+  function botSay(key, vars) { return addMsg(tgHtml(t(key, vars)), "bot"); }
+  function botSayNoCancel(key, vars) {
+    var text = t(key, vars).split("\n\n").filter(function (part) {
+      return part.indexOf("/cancel") === -1;
+    }).join("\n\n");
+    return addMsg(tgHtml(text), "bot");
+  }
+  function meSay(text) { return addMsg(esc(text), "me"); }
 
-</body>
-</html>
+  // Инлайн-клавиатура: [[{label, cb}], ...] — массив рядов.
+  function addKb(rows) {
+    // Прошлые клавиатуры гасим (как бот убирает кнопки).
+    feed.querySelectorAll(".ikb").forEach(function (k) { k.remove(); });
+    var kb = document.createElement("div");
+    kb.className = "ikb";
+    rows.forEach(function (row) {
+      var r = document.createElement("div");
+      r.className = "row";
+      row.forEach(function (btn) {
+        var b = document.createElement("button");
+        // btn.html — доверенная разметка (цены со старой ценой <s>…</s>).
+        b.innerHTML = btn.html || esc(btn.label);
+        // Кнопка без cb — разделитель (как noop-кнопка в тг).
+        if (!btn.cb) { b.className = "kb-divider"; b.onclick = function () {}; }
+        else b.onclick = function () { kb.remove(); btn.cb(); };
+        r.appendChild(b);
+      });
+      kb.appendChild(r);
+    });
+    feed.appendChild(kb);
+    scrollDown();
+    return kb;
+  }
+
+  // Списки листаются страницами по 8, как в тг: ряд «‹ 1/3 ›» под кнопками.
+  // pageSize — размер страницы для конкретного списка (города — одной
+  // страницей в два столбца, Кефир 29.08).
+  var KB_PAGE = 8;
+  function showPagedKb(items, makeRow, extraRows, pageSize) {
+    var size = pageSize || KB_PAGE;
+    var pages = Math.max(1, Math.ceil(items.length / size));
+    function render(page) {
+      page = Math.min(Math.max(page, 0), pages - 1);
+      var rows = items.slice(page * size, page * size + size).map(makeRow);
+      if (pages > 1) {
+        var nav = [];
+        if (page > 0) nav.push({ label: "‹", cb: function () { render(page - 1); } });
+        nav.push({ label: (page + 1) + " / " + pages, cb: function () { render(page); } });
+        if (page < pages - 1) nav.push({ label: "›", cb: function () { render(page + 1); } });
+        rows.push(nav);
+      }
+      addKb(rows.concat(extraRows || []));
+    }
+    render(0);
+  }
+
+  function api(path, opts) {
+    return fetch(path, opts).then(function (r) {
+      if (r.status === 401) { location.href = "/login"; throw new Error("401"); }
+      return r.json();
+    });
+  }
+  function apiPost(path, body) {
+    return api(path, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body || {}),
+    });
+  }
+
+  // ── Меню (как /start у бота) ───────────────────────────────────────────
+  function showMenu() {
+    botSay("menu.welcome");
+    var rows = [
+      [{ label: t("menu.btn.catalog"), cb: flowCatalog }],
+      [{ label: t("menu.btn.orders"), cb: flowOrders }],
+      [{ label: t("menu.btn.balance"), cb: flowBalance }],
+      [{ label: t("menu.btn.support"), cb: flowSupport },
+       { label: t("menu.btn.work"), cb: flowWork }],
+      [{ label: "🎁 " + (t("nav.bonus")), cb: flowBonus }],
+    ];
+    // «Рядом» — только если магазину включена «Карта точек» (панель → Магазины).
+    if (S.mapOn) rows.splice(3, 0, [{ label: t("menu.btn.nearby"), cb: flowNearby }]);
+    // «Привязать Telegram» — пока аккаунт сайта не связан с ботом (Кефир 29.08).
+    if (!S.tgLinked) rows.push([{ label: S.tgLinkLabel || "🔗 Привязать Telegram", cb: flowLink }]);
+    if (S.i18nOn) rows.push([{ label: t("menu.btn.lang"), cb: flowLang }]);
+    rows.push([
+      { label: t("theme.title") + ": " + (S.theme === "dark" ? "🌙 " + t("theme.dark") : "☀️ " + t("theme.light")), cb: toggleTheme },
+      { label: "🚪 " + t("nav.logout"), cb: function () { location.href = "/logout"; } },
+    ]);
+    addKb(rows);
+  }
+
+  // ── «📍 Рядом» (смета 31.08, п.5): геолокация браузера → товары в радиусе ──
+  var NEARBY_RADIUS_M = 500;
+  function flowNearby() {
+    meSay(t("menu.btn.nearby").replace(/^[^ ]+ /, ""));
+    if (!navigator.geolocation || !window.isSecureContext) {
+      botSay("nearby.geo_unsupported"); backKb(); return;
+    }
+    var waitEl = botSay("nearby.locating");
+    navigator.geolocation.getCurrentPosition(function (pos) {
+      var lat = pos.coords.latitude, lng = pos.coords.longitude;
+      api("/api/nearby?lat=" + lat + "&lng=" + lng + "&radius_m=" + NEARBY_RADIUS_M)
+        .then(function (data) {
+          if (waitEl && waitEl.parentNode) waitEl.parentNode.removeChild(waitEl);
+          var ps = (data && data.products) || [];
+          if (!ps.length) {
+            botSay("nearby.none", { radius: NEARBY_RADIUS_M });
+            addKb([[{ label: t("nearby.btn.retry"), cb: flowNearby }],
+                   [{ label: t("menu.btn.catalog"), cb: flowCatalog }],
+                   [{ label: t("menu.btn.back"), cb: showMenu }]]);
+            return;
+          }
+          botSay("nearby.found", { radius: NEARBY_RADIUS_M, count: ps.length });
+          // 02.09: после товаров рядом — остальной каталог города под «Не в вашей локации».
+          var others = (data && data.others) || [];
+          var list = ps.map(function (p) { return { kind: "near", p: p }; });
+          if (others.length) {
+            list.push({ kind: "divider" });
+            others.forEach(function (p) { list.push({ kind: "other", p: p }); });
+          }
+          showPagedKb(list, function (row) {
+            if (row.kind === "divider") return [{ label: t("nearby.others"), cb: null }];
+            var p = row.p;
+            return [{
+              label: p.name + " — " + p.price + " " + p.currency,
+              html: esc(p.name) + " — " + priceHtml(p),
+              cb: function () {
+                // Город/район — по точке, чтобы «Купить» шёл обычным сценарием;
+                // «не в вашей локации» — город тот же, район выберется в карточке.
+                S.ctx.city = p.city_id; S.ctx.cityName = p.city || "";
+                S.ctx.district = (row.kind === "near" && p.district_id) || null;
+                S.ctx.districtName = row.kind === "near" ? (p.district || "") : "";
+                S.ctx.fromNearby = row.kind === "near";
+                openProduct(p.id);
+              },
+            }];
+          }, [[{ label: t("menu.btn.back"), cb: showMenu }]]);
+        })
+        .catch(function () {
+          if (waitEl && waitEl.parentNode) waitEl.parentNode.removeChild(waitEl);
+          botSay("nearby.error"); backKb();
+        });
+    }, function () {
+      if (waitEl && waitEl.parentNode) waitEl.parentNode.removeChild(waitEl);
+      botSay("nearby.geo_denied");
+      addKb([[{ label: t("nearby.btn.retry"), cb: flowNearby }], [{ label: t("menu.btn.back"), cb: showMenu }]]);
+    }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 });
+  }
+
+  // ── Каталог: город → товары города → товар → район → тип → оплата ─────
+  function cityLabel(c) {
+    // «Gdansk -15%»: parseFloat срезает хвостовые нули (15.00 → 15, 12.50 → 12.5).
+    var n = parseFloat(c.discount_percent);
+    return c.name + (n > 0 ? " -" + n + "%" : "");
+  }
+  function priceHtml(p) {
+    // Цена со скидкой: старая зачёркнута рядом с новой.
+    var h = "";
+    if (p.discounted && p.base_price) h = "<s class='oldp'>" + esc(p.base_price) + "</s> ";
+    return h + esc(p.price) + " " + esc(p.currency);
+  }
+  function cityHeader(key, cityName) {
+    // Тексты бота ждут «{city} / {district}», района на этом шаге ещё нет.
+    return t(key, { city: cityName, district: "" }).split(" / \n").join("\n");
+  }
+  function flowCatalog() {
+    meSay(t("menu.btn.catalog").replace(/^[^ ]+ /, ""));
+    api("/api/cities").then(function (cities) {
+      if (!cities.length) { botSay("catalog.no_cities"); backKb(); return; }
+      botSay("catalog.choose_city");
+      // Города одной страницей в два столбца (до 80), как в боте; ≤6 — в один.
+      var cols = cities.length > 6 ? 2 : 1;
+      var pairs = [];
+      for (var i = 0; i < cities.length; i += cols) pairs.push(cities.slice(i, i + cols));
+      showPagedKb(pairs, function (pair) {
+        return pair.map(function (c) {
+          return { label: cityLabel(c), cb: (function (cc) { return function () { pickCity(cc); }; })(c) };
+        });
+      }, [[{ label: t("menu.btn.back"), cb: showMenu }]], 40);
+    });
+  }
+  function pickCity(c) {
+    S.ctx.city = c.id; S.ctx.cityName = c.name;
+    S.ctx.district = null; S.ctx.districtName = ""; S.ctx.fromNearby = false;
+    meSay(c.name);
+    api("/api/availability?city_id=" + c.id)
+      .then(function (data) {
+        var ps = data.products || [];
+        if (!ps.length) {
+          addMsg(tgHtml(cityHeader("catalog.no_products", c.name)), "bot");
+          backKb();
+          return;
+        }
+        addMsg(tgHtml(cityHeader("catalog.products_in", c.name)), "bot");
+        showPagedKb(ps, function (p) {
+          return [{
+            label: p.name + " — " + p.price + " " + p.currency,
+            html: esc(p.name) + " — " + priceHtml(p),
+            cb: function () { openProduct(p.id); },
+          }];
+        }, [[{ label: t("menu.btn.back"), cb: flowCatalog }]]);
+      });
+  }
+  function openProduct(pid) {
+    api("/api/product/" + pid + "?city_id=" + S.ctx.city).then(function (p) {
+      meSay(p.name);
+      var full = p.full_description ? "\n\n" + p.full_description : "";
+      // Скидка города: старая цена зачёркнута (<s> — разрешённый tg-тег).
+      var cardPrice = (p.discounted && p.base_price ? "<s>" + p.base_price + "</s> " : "") + p.price;
+      var html = tgHtml(t("product.card", {
+        name: p.name, short: p.short_description || "",
+        price: cardPrice, currency: p.currency, full: p.full_description || "",
+      }).split("{full_block}").join(full));
+      if (p.cover_image) {
+        // Габариты резервируются сразу (aspect-ratio) — макет не прыгает,
+        // пока картинка грузится, кнопки остаются на месте.
+        html = "<div class='pimg-wrap'><img class='pimg' src='/img/" + p.id + "'></div>" + html;
+      }
+      var msgEl = addMsg(html, "bot");
+      var img = msgEl.querySelector("img.pimg");
+      if (img) img.onload = scrollDown;
+      var rows = [];
+      if (p.in_stock) {
+        // купить → район (если есть) → (тип продукта, если есть) → (валюта, если >1) → заказ.
+        var buyBtn = {
+          label: t("product.btn.buy", { price: p.price, currency: p.currency }),
+          cb: function () { startBuy(p); },
+        };
+        if (p.discounted && p.base_price) {
+          buyBtn.html = esc(t("product.btn.buy", { price: "{PRICE}", currency: p.currency }))
+            .replace("{PRICE}", "<s class='oldp'>" + esc(p.base_price) + "</s> " + esc(p.price));
+        }
+        rows.push([buyBtn]);
+      } else {
+        rows.push([{ label: t("product.btn.out"), cb: function () {} }]);
+      }
+      rows.push([{ label: t("menu.btn.back"), cb: function () { pickCity({ id: S.ctx.city, name: S.ctx.cityName }); } }]);
+      addKb(rows);
+    });
+  }
+  function startBuy(p) {
+    meSay(t("product.btn.buy", { price: p.price, currency: p.currency }));
+    // «Рядом»: район уже известен по точке — сразу к типу/валюте (как в боте).
+    if (S.ctx.fromNearby && S.ctx.district) { afterDistrict(p); return; }
+    // Район выбирается ПОСЛЕ товара: только районы, где есть именно он.
+    api("/api/product/" + p.id + "/districts?city_id=" + S.ctx.city)
+      .then(function (ds) { chooseDistrict(p, Array.isArray(ds) ? ds : []); })
+      .catch(function () { chooseDistrict(p, []); });
+  }
+  function chooseDistrict(p, ds) {
+    if (!ds.length) {
+      // Не физический товар — районов нет, продолжаем без района.
+      S.ctx.district = null; S.ctx.districtName = "";
+      afterDistrict(p);
+      return;
+    }
+    botSay("catalog.choose_district");
+    showPagedKb(ds, function (d) {
+      return [{
+        label: d.name,
+        cb: function () {
+          S.ctx.district = d.id; S.ctx.districtName = d.name;
+          meSay(d.name);
+          afterDistrict(p);
+        },
+      }];
+    }, [[{ label: t("menu.btn.back"), cb: function () { openProduct(p.id); } }]]);
+  }
+  function afterDistrict(p) {
+    var q = "city_id=" + S.ctx.city + (S.ctx.district ? "&district_id=" + S.ctx.district : "");
+    api("/api/product/" + p.id + "/kinds?" + q)
+      .then(function (kd) {
+        kd = kd || {};
+        var kinds = kd.kinds || [];
+        var hasPlain = !!kd.plain;
+        // 1-в-1 бот: шаг типа виден всегда, когда есть именованные типы.
+        if (kinds.length) { chooseKind(p, kinds, hasPlain); return; }
+        afterKind(p, null);
+      })
+      .catch(function () { afterKind(p, null); });
+  }
+  function chooseKind(p, kinds, hasPlain) {
+    botSay("order.choose_kind");
+    var rows = kinds.map(function (k) {
+      return [{
+        label: k.name,
+        cb: function () { meSay(k.name); afterKind(p, k.id); },
+      }];
+    });
+    if (hasPlain) {
+      rows.push([{
+        label: t("order.kind.default"),
+        cb: function () { meSay(t("order.kind.default")); afterKind(p, null); },
+      }]);
+    }
+    rows.push([{ label: t("menu.btn.back"), cb: function () { openProduct(p.id); } }]);
+    addKb(rows);
+  }
+  function afterKind(p, kindId) {
+    if (S.currencies.length > 1) { chooseCurrency(p, kindId); return; }
+    doBuy(p, S.currencies[0] || null, kindId);
+  }
+  function chooseCurrency(p, kindId) {
+    botSay("order.choose_currency");
+    addKb(S.currencies.map(function (c) {
+      return [{
+        label: c.currency + (c.method ? " — " + c.method : ""),
+        cb: function () { doBuy(p, c, kindId); },
+      }];
+    }).concat([[{ label: t("menu.btn.back"), cb: function () { openProduct(p.id); } }]]));
+  }
+  function doBuy(p, cur, kindId) {
+    if (cur) meSay(cur.currency + (cur.method ? " — " + cur.method : ""));
+    var body = { product_id: p.id, city_id: S.ctx.city };
+    // Район выбран на шаге после товара; без района — не физический товар.
+    if (S.ctx.district) body.district_id = S.ctx.district;
+    if (kindId) body.product_kind_id = kindId;
+    if (cur) {
+      body.pay_current_id = cur.current_id;
+      body.pay_payment_type_id = cur.payment_type_id;
+      body.pay_currency = cur.currency;
+    }
+    apiPost("/api/buy", body).then(function (r) {
+      if (r.error) {
+        var d = String(r.error);
+        if (d.indexOf("active_order_exists:") === 0) {
+          var parts = d.split(":");
+          botSay("order.active_exists", { public_number: parts[2] || parts[1] });
+          addKb([[{ label: t("order.btn.goto"), cb: function () { openOrder(parseInt(parts[1], 10)); } }],
+                 [{ label: t("menu.btn.back"), cb: showMenu }]]);
+        } else if (d === "out_of_stock") {
+          botSay("err.out_of_stock"); backKb();
+        } else {
+          botSay("err.order_create"); backKb();
+        }
+        return;
+      }
+      var o = r.order;
+      S.awaitReceipt = null;
+      if (o.free) {
+        botSay("order.free_delivered", { public_number: o.public_number });
+        backKb();
+        return;
+      }
+      openOrder(o.order_id);
+    });
+  }
+
+  // ── Заказ ─────────────────────────────────────────────────────────────
+  function openOrder(orderId) {
+    api("/api/order/" + orderId).then(function (r) {
+      if (!r || !r.order) { botSay("err.order_load"); backKb(); return; }
+      var o = r.order;
+      S.activeOrder = o;
+      // Ожидание чека от ПРОШЛОГО заказа не должно утащить файл не туда.
+      if (S.awaitReceipt && S.awaitReceipt !== o.id) S.awaitReceipt = null;
+      wsWatch(o.id);
+
+      var st = {
+        new: t("ord.waiting"), awaiting_payment: t("ord.waiting"),
+        payment_pending: t("ord.checking"), manual_review: t("ord.checking"),
+        paid: t("ord.paid_short"), delivery_processing: t("ord.paid_short"),
+        delivered: t("ord.delivered"), cancelled: t("ord.cancelled"),
+        expired: t("ord.expired_short"),
+      }[o.status] || o.status;
+      var finished = ["delivered", "cancelled", "expired", "paid",
+                      "delivery_processing", "payment_pending", "manual_review"]
+        .indexOf(o.status) >= 0;
+      var headerText = t("order.show.header", {
+        public_number: o.public_number, status: st,
+        amount: o.amount, currency: o.currency,
+      });
+      if (finished) {
+        // Заказ уже оплачен/выдан/закрыт — хвост «пришлите квитанцию» неуместен.
+        headerText = headerText.split("\n\n")[0];
+      }
+      addMsg(tgHtml(headerText), "bot");
+
+      // Чек уже загружен и ждёт проверки — говорим об этом явно, а не «пришлите».
+      if (o.receipt_uploaded && (o.status === "payment_pending" || o.status === "manual_review")) {
+        botSay("receipt.received");
+      }
+      var active = ["new", "awaiting_payment", "payment_pending", "manual_review"].indexOf(o.status) >= 0;
+      if (o.status === "delivered") {
+        if (o.delivered_text) addMsg(esc(o.delivered_text), "bot");
+        backKb();
+        return;
+      }
+      if (!active) { backKb(); return; }
+
+      if (o.payment_provider === "stiptoi" && r.instructions) {
+        addMsg(tgHtml(r.instructions), "bot");
+      }
+      if (o.payment_provider === "manual") {
+        var card = null;
+        if (o.payment_card_id) {
+          card = (r.cards || []).filter(function (c) { return c.id === o.payment_card_id; })[0];
+        } else if ((r.cards || []).length === 1) {
+          card = r.cards[0];
+        }
+        if (card) {
+          showCard(card);
+        } else if ((r.cards || []).length > 1) {
+          botSay("order.choose_payment");
+          addKb(r.cards.map(function (c) {
+            return [{
+              label: t("order.btn.card_pick", { label: c.display_name || c.name }),
+              cb: function () {
+                apiPost("/api/order/" + o.id + "/card", { card_id: c.id }).then(function () {
+                  showCard(c);
+                  orderKb(o, r);
+                });
+              },
+            }];
+          }));
+          return;
+        }
+      }
+      orderKb(o, r);
+    });
+  }
+  function showCard(card) {
+    var rec = card.recipient ? t("order.card.recipient", { recipient: card.recipient }) : "";
+    var snd = card.sender ? t("order.card.sender", { sender: card.sender }) : "";
+    var html = t("order.card_block", { label: card.display_name || card.name, card_number: card.card_number })
+      .split("{recipient_block}").join(rec).split("{sender_block}").join(snd);
+    addMsg(tgHtml(html), "bot");
+  }
+  function orderKb(o, r) {
+    var rows = [];
+    var bal = r && r.balance;
+    if (bal && parseFloat(bal.total) >= parseFloat(o.amount) &&
+        (o.status === "new" || o.status === "awaiting_payment")) {
+      rows.push([{
+        label: t("order.btn.pay_balance", { total: bal.total, currency: bal.currency }),
+        cb: function () {
+          apiPost("/api/order/" + o.id + "/paybalance").then(function (res) {
+            if (res && res.error) { addMsg(esc(res.error), "bot"); return; }
+            botSay("balance.paid");
+          });
+        },
+      }]);
+    }
+    if (o.payment_provider === "manual") {
+      // Текст заказа просит «пришлите квитанцию» — кнопка должна быть сразу.
+      rows.push([
+        { label: t("chat.attach_photo"), cb: function () { S.awaitReceipt = o.id; document.getElementById("fileInputPhoto").click(); } },
+        { label: t("chat.attach_pdf"), cb: function () { S.awaitReceipt = o.id; document.getElementById("fileInput").click(); } },
+      ]);
+    } else {
+      rows.push([{ label: t("order.btn.pay"), cb: function () { paidPressed(o); } }]);
+    }
+    rows.push([{ label: t("order.btn.cancel_num", { public_number: o.public_number }), cb: function () { cancelOrder(o); } }]);
+    rows.push([{ label: t("menu.btn.back"), cb: showMenu }]);
+    addKb(rows);
+  }
+  function paidPressed(o) {
+    meSay(t("order.btn.pay"));
+    if (o.payment_provider === "stiptoi") {
+      apiPost("/api/order/" + o.id + "/paid").then(function (r) {
+        var res = (r || {}).result;
+        if (res === "paid") botSay("exchange.paid");
+        else if (res === "waiting") { botSay("exchange.waiting"); orderKb(o, null); }
+        else if (res === "cancelled") { botSay("exchange.cancelled"); backKb(); }
+        else { botSay("exchange.check_error"); orderKb(o, null); }
+      });
+    } else {
+      botSayNoCancel("receipt.ask");
+      S.awaitReceipt = o.id;
+      addKb([
+        [{ label: t("chat.attach_photo"), cb: function () { document.getElementById("fileInputPhoto").click(); } },
+         { label: t("chat.attach_pdf"), cb: function () { document.getElementById("fileInput").click(); } }],
+        [{ label: t("order.btn.cancel_num", { public_number: o.public_number }), cb: function () { cancelOrder(o); } }],
+      ]);
+    }
+  }
+  function cancelOrder(o) {
+    meSay(t("order.btn.cancel"));
+    apiPost("/api/order/" + o.id + "/cancel").then(function (r) {
+      if (r && r.error) { addMsg(esc(r.error), "bot"); return; }
+      botSay("order.cancelled", { public_number: o.public_number, signature: "" }
+      );
+      S.activeOrder = null; S.awaitReceipt = null;
+      wsWatch(null);
+      backKb();
+    });
+  }
+
+  // ── Мои заказы ────────────────────────────────────────────────────────
+  function flowOrders() {
+    meSay(t("menu.btn.orders").replace(/^[^ ]+ /, ""));
+    api("/api/orders").then(function (list) {
+      if (!list.length) { botSay("orders.list.empty"); backKb(); return; }
+      botSay("orders.list.header");
+      showPagedKb(list, function (o) {
+        return [{
+          label: "№" + o.public_number + " — " + o.amount + " " + o.currency,
+          cb: function () { meSay("№" + o.public_number); openOrder(o.id); },
+        }];
+      }, [[{ label: t("menu.btn.back"), cb: showMenu }]]);
+    });
+  }
+
+  // ── Баланс ────────────────────────────────────────────────────────────
+  function flowBalance() {
+    meSay(t("menu.btn.balance").replace(/^[^ ]+ /, ""));
+    api("/api/balance").then(function (b) {
+      botSay("balance.info", { total: b.total, real: b.real, bonus: b.bonus, currency: b.currency });
+      addKb([
+        [{ label: t("balance.btn.topup"), cb: flowTopup }],
+        [{ label: t("menu.btn.back"), cb: showMenu }],
+      ]);
+    });
+  }
+  function flowTopup() {
+    meSay(t("balance.btn.topup"));
+    botSayNoCancel("balance.ask_amount");
+    S.awaitTopup = true;
+  }
+  function topupAmount(amount) {
+    S.awaitTopup = false;
+    var send = function (cur) {
+      var body = { amount: amount };
+      if (cur) {
+        body.pay_current_id = cur.current_id;
+        body.pay_payment_type_id = cur.payment_type_id;
+        body.pay_currency = cur.currency;
+      }
+      apiPost("/api/topup", body).then(function (r) {
+        if (r.error) { botSay("balance.invalid_amount"); S.awaitTopup = true; return; }
+        if (r.instructions) addMsg(tgHtml(r.instructions), "bot");
+        addKb([
+          [{ label: t("order.btn.pay"), cb: function () {
+            apiPost("/api/topup/" + r.topup_id + "/check").then(function (c) {
+              var res = (c || {}).result;
+              if (res === "paid") botSay("balance.topup_credited", { total: (c.total || ""), currency: (c.currency || "") });
+              else if (res === "waiting") botSay("balance.topup_waiting");
+              else if (res === "cancelled") botSay("balance.topup_cancelled");
+              else botSay("exchange.check_error");
+              backKb();
+            });
+          } }],
+          [{ label: t("menu.btn.back"), cb: showMenu }],
+        ]);
+      });
+    };
+    if (S.currencies.length > 1) {
+      botSay("order.choose_currency");
+      addKb(S.currencies.map(function (c) {
+        return [{ label: c.currency + (c.method ? " — " + c.method : ""), cb: function () { meSay(c.currency); send(c); } }];
+      }));
+    } else {
+      send(S.currencies[0] || null);
+    }
+  }
+
+  // ── Поддержка / Работа / Бонус / Язык ─────────────────────────────────
+  function flowSupport() {
+    meSay(t("menu.btn.support").replace(/^[^ ]+ /, ""));
+    botSay("support.text");
+    backKb();
+  }
+  function flowWork() {
+    meSay(t("menu.btn.work"));
+    apiPost("/api/work").then(function () { botSay("work.reply"); backKb(); });
+  }
+  function flowBonus() {
+    meSay("🎁 " + t("nav.bonus"));
+    api("/api/bonus-status").then(function (st) {
+      if (!st.available) { addMsg(esc(t("bonus.none")), "bot"); backKb(); return; }
+      addMsg(esc(t("bonus.available", { promo: st.promo_title ? " — «" + st.promo_title + "»" : "" })), "bot");
+      addKb([
+        [{ label: "🎁 " + t("bonus.claim"), cb: function () {
+          apiPost("/api/bonus", { request_id: st.request_id }).then(function () {
+            addMsg(esc(t("bonus.claimed")), "bot");
+            backKb();
+          });
+        } }],
+        [{ label: t("menu.btn.back"), cb: showMenu }],
+      ]);
+    });
+  }
+  // ── Привязка к Telegram — перепиской, как в боте (Кефир 29.08) ──────────
+  var linkPoll = null;
+  function stopLinkPoll() { if (linkPoll) { clearInterval(linkPoll); linkPoll = null; } }
+  function flowLink() {
+    meSay(S.tgLinkLabel || "🔗 Привязать Telegram");
+    stopLinkPoll();
+    apiPost("/api/link/code").then(function (st) {
+      var tx = st.texts || {};
+      if (st.linked) { S.tgLinked = true; addMsg(esc("✅ " + (tx.linked || "")), "bot"); showMenu(); return; }
+      if (!st.code) { addMsg(esc(tx.hint || ""), "bot"); backKb(); return; }
+      addMsg(
+        esc(tx.code || "") + "<br><b style=\"font-size:1.7em;letter-spacing:.25em\">" + esc(st.code) + "</b><br>" +
+        esc(tx.send || "") + (st.bot_username ? " @" + esc(st.bot_username) : ""),
+        "bot",
+      );
+      var rows = [];
+      if (st.bot_username) rows.push([{ label: "✈️ " + (tx.open || "") + " @" + st.bot_username, cb: function () { window.open("https://t.me/" + st.bot_username, "_blank"); } }]);
+      rows.push([{ label: "🔄 " + (tx.new || ""), cb: flowLink }, { label: t("menu.btn.back"), cb: function () { stopLinkPoll(); showMenu(); } }]);
+      addKb(rows);
+      var tries = 0;
+      linkPoll = setInterval(function () {
+        tries += 1;
+        if (tries > 200) { stopLinkPoll(); return; }
+        api("/api/link/status").then(function (s2) {
+          if (s2.linked) {
+            stopLinkPoll(); S.tgLinked = true;
+            addMsg(esc("✅ " + ((s2.texts || {}).linked || "")), "bot");
+            showMenu();
+          }
+        }).catch(function () {});
+      }, 3000);
+    });
+  }
+  function flowLang() {
+    meSay(t("menu.btn.lang"));
+    botSay("lang.choose");
+    addKb([
+      [{ label: "Русский", cb: function () { setLang("ru"); } },
+       { label: "English", cb: function () { setLang("en"); } },
+       { label: "Polski", cb: function () { setLang("pl"); } }],
+    ]);
+  }
+  function setLang(code) {
+    apiPost("/api/lang/" + code).then(function () {
+      return api("/api/texts");
+    }).then(function (r) {
+      S.lang = r.lang; S.texts = r.texts;
+      input.placeholder = t("chat.placeholder");
+      document.getElementById("btnMenu").textContent = t("chat.menu_btn");
+      botSay("lang.changed");
+      showMenu();
+    });
+  }
+
+  function backKb() { addKb([[{ label: t("menu.btn.back"), cb: showMenu }]]); }
+
+  // ── Composer: текст → оператору; файл → чек активного заказа ──────────
+  function sendText() {
+    var text = input.value.trim();
+    if (!text) return;
+    input.value = "";
+    if (text === "/cancel") {
+      meSay(text);
+      S.awaitTopup = false; S.awaitReceipt = null;
+      botSay("receipt.fsm_cancel");
+      backKb();
+      return;
+    }
+    if (S.awaitTopup) {
+      var amount = parseFloat(text.replace(",", "."));
+      meSay(text);
+      if (!amount || amount <= 0) { botSay("balance.invalid_amount"); S.awaitTopup = true; return; }
+      topupAmount(amount);
+      return;
+    }
+    meSay(text);
+    apiPost("/api/msg", { body: text });
+  }
+  document.getElementById("btnSend").onclick = sendText;
+  input.addEventListener("focus", function () { setTimeout(scrollDown, 250); });
+  // iOS: при клавиатуре Safari сдвигает документ. Держим приложение ровно в
+  // видимой области: фиксированный body + высота/смещение из visualViewport.
+  if (window.visualViewport) {
+    var vv = window.visualViewport;
+    // Опорная высота без клавиатуры: innerHeight на iOS сам сжимается,
+    // сравнивать с ним нельзя — держим максимум виденной высоты вьюпорта.
+    var baseH = vv.height;
+    var vvSync = function () {
+      if (vv.height > baseH) baseH = vv.height;
+      var kbOpen = vv.height < baseH - 100;
+      document.body.style.height = kbOpen ? vv.height + "px" : "";
+      if (kbOpen) {
+        // Мы ужали раскладку — прижимаем окно, поле ввода ровно над клавиатурой.
+        window.scrollTo(0, 0);
+        setTimeout(function () { window.scrollTo(0, 0); }, 50);
+      }
+      feedScroll.scrollTop = feedScroll.scrollHeight;
+    };
+    window.addEventListener("orientationchange", function () { baseH = 0; });
+    vv.addEventListener("resize", vvSync);
+    vv.addEventListener("scroll", vvSync);
+    vvSync();
+  }
+  input.addEventListener("blur", function () {
+    setTimeout(function () { window.scrollTo(0, 0); }, 60);
+  });
+  input.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") { e.preventDefault(); sendText(); }
+  });
+  function onReceiptFileChosen() {
+    var f = this.files[0];
+    this.value = "";
+    if (!f) return;
+    var target = S.awaitReceipt ||
+      (S.activeOrder && S.activeOrder.payment_provider === "manual" ? S.activeOrder.id : null);
+    if (!target) { botSay("err.receipt_order_closed"); return; }
+    addMsg("📎 " + esc(f.name), "me");
+    var fd = new FormData();
+    fd.append("file", f);
+    fetch("/api/receipt/" + target, { method: "POST", body: fd })
+      .then(function (r) { return r.json(); })
+      .then(function (r) {
+        if (r.error) { addMsg(esc(r.error), "bot"); return; }
+        S.awaitReceipt = null;
+        botSay("receipt.received");
+        // Замена чека — из карточки заказа (Мои заказы → заказ → 📎),
+        // здесь только «Назад», чтобы не плодить одинаковые кнопки.
+        backKb();
+      });
+  }
+  document.getElementById("fileInput").addEventListener("change", onReceiptFileChosen);
+  document.getElementById("fileInputPhoto").addEventListener("change", onReceiptFileChosen);
+  // Скрепка в композере — фото/скрин чека из галереи или с камеры.
+  document.getElementById("btnAttach").addEventListener("click", function () {
+    var target = S.awaitReceipt ||
+      (S.activeOrder && S.activeOrder.payment_provider === "manual" ? S.activeOrder.id : null);
+    if (!target) { botSay("err.receipt_order_closed"); return; }
+    document.getElementById("fileInputPhoto").click();
+  });
+
+  // ── Меню-кнопка и тема ────────────────────────────────────────────────
+  document.getElementById("btnMenu").onclick = showMenu;
+  function applyTheme() {
+    document.documentElement.setAttribute("data-theme", S.theme);
+    try { localStorage.setItem("theme", S.theme); } catch (e) {}
+  }
+  function toggleTheme() {
+    S.theme = S.theme === "dark" ? "light" : "dark";
+    applyTheme();
+    apiPost("/api/theme/" + S.theme);
+    showMenu();
+  }
+
+  // ── История и WebSocket ───────────────────────────────────────────────
+  function renderHistoryMsg(m) {
+    if (m.id) S.lastMsgId = Math.max(S.lastMsgId, m.id);
+    var who = m.direction === "in" ? "me" : "bot";
+    addMsg(tgHtml(m.body || ""), who, (m.created_at || "").slice(0, 16).replace("T", " "));
+  }
+  function wsWatch(orderId) {
+    S.watchId = orderId;
+    if (S.ws && S.ws.readyState === 1) {
+      S.ws.send(JSON.stringify({ watch: orderId }));
+    }
+  }
+  function connectWs() {
+    var proto = location.protocol === "https:" ? "wss://" : "ws://";
+    var ws = new WebSocket(proto + location.host + "/ws");
+    S.ws = ws;
+    ws.onopen = function () {
+      ws.send(JSON.stringify({ after: S.lastMsgId, watch: S.watchId || null }));
+    };
+    ws.onmessage = function (ev) {
+      var data = JSON.parse(ev.data);
+      if (data.type === "msgs") {
+        data.items.forEach(function (m) {
+          // Свои недавние (мы уже отрисовали при отправке) — не дублируем.
+          if (m.direction === "in") { S.lastMsgId = Math.max(S.lastMsgId, m.id); return; }
+          renderHistoryMsg(m);
+        });
+      }
+      if (data.type === "order" && data.order) {
+        var o = data.order;
+        if (S.activeOrder && o.id === S.activeOrder.id && o.status !== S.activeOrder.status) {
+          S.activeOrder = o;
+          if (["paid", "delivery_processing", "delivered", "cancelled", "expired"].indexOf(o.status) >= 0) {
+            S.awaitReceipt = null;
+          }
+          if (o.status === "cancelled" || o.status === "expired" || o.status === "delivered") {
+            wsWatch(null);
+          }
+        }
+      }
+    };
+    ws.onclose = function () { setTimeout(connectWs, 3000); };
+  }
+
+  // ── Boot ──────────────────────────────────────────────────────────────
+  api("/api/boot").then(function (b) {
+    S.texts = b.texts; S.lang = b.lang;
+    // Тема: localStorage главнее серверной куки (переживает любой апдейт).
+    var savedTheme = null;
+    try { savedTheme = localStorage.getItem("theme"); } catch (e) {}
+    S.theme = (savedTheme === "dark" || savedTheme === "light") ? savedTheme : b.theme;
+    S.cid = b.user.cid; S.currencies = b.currencies || [];
+    S.i18nOn = b.i18n_on;
+    S.mapOn = !!b.map_on;
+    S.tgLinked = !!b.tg_linked;
+    S.tgLinkLabel = b.tg_link_label;
+    input.placeholder = t("chat.placeholder");
+    document.getElementById("btnMenu").textContent = t("chat.menu_btn");
+    document.getElementById("caShopName").textContent = b.shop_name;
+    document.getElementById("caAva").textContent = (b.shop_name || "M").trim().charAt(0).toUpperCase();
+    applyTheme();
+    (b.history || []).forEach(renderHistoryMsg);
+    showMenu();
+    if (b.active_order) {
+      openOrder(b.active_order.id);
+    }
+    connectWs();
+  });
+})();
